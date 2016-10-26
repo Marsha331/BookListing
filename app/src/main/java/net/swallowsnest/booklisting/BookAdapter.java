@@ -21,22 +21,21 @@ public class BookAdapter extends ArrayAdapter<Book> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //set up the View of the book
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(
+        View bookListView = convertView;
+        if (bookListView == null) {
+            bookListView = LayoutInflater.from(getContext()).inflate(
                     R.layout.book_list_item, parent, false);
         }
 
         //find book position
         Book currentBook = getItem(position);
 
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.title);
+        TextView titleTextView = (TextView) bookListView.findViewById(R.id.title);
         titleTextView.setText(currentBook.getTitle());
 
-        TextView authorTextView = (TextView) convertView.findViewById(R.id.author);
+        TextView authorTextView = (TextView) bookListView.findViewById(R.id.author);
         authorTextView.setText(currentBook.getAuthor());
 
-        return convertView;
+        return bookListView;
     }
-
-
 }

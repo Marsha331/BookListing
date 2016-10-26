@@ -42,11 +42,12 @@ public class MainActivity extends AppCompatActivity {
      * URL for book data from the Google Site
      */
     private static final String BOOK_REQUEST_URL = "https://www.googleapis.com/books/v1/volumes?q=";
+    private static final String KEY_INDEX = "index";
 
     private BookAdapter mAdapter;
-
     private EditText searchText;
     private String userInput;
+    private int mCurrentIndex;
 
     //textview for when data is empty//
     private TextView mEmptyStateTextView;
@@ -56,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // check if savedInstanceState contains saved data
+        if(savedInstanceState != null){
+
+            //if there is saved data store it in mCurrentIndex
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            //we use  KEY_INDEX to retrieve your saved data in this line
+
+        }
 
         // Find a reference to the {@link ListView} in the layout
         ListView bookListView = (ListView) findViewById(R.id.list);
@@ -87,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     if (networkInfo != null && networkInfo.isConnected()) {
                         task.execute();
                         mAdapter.clear();
+
                     } else {
                         //set empty state text to say no internet connection
                         mEmptyStateTextView.setText(R.string.no_internet);
@@ -100,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
      * update the UI with the first earthquake in the response.
      */
     private class BookAsyncTask extends AsyncTask<URL, Void, List<Book>> {
+        List<Book> books = new ArrayList<>();
 
         @Override
         protected List<Book> doInBackground(URL... urls) {
@@ -205,7 +216,6 @@ public class MainActivity extends AppCompatActivity {
             return output.toString();
         }
 
-        List<Book> books = new ArrayList<>();
         /**
          * Return an {@link Book} object by parsing out information
          * about the first book from the input booksJSON string.
@@ -219,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
                 if (itemArray.length() > 0);
                 for (int i = 0; i < itemArray.length(); i++){
                     // Extract out the first feature (which is a book)
-                    JSONObject firstFeature = itemArray.getJSONObject(0);
-                    JSONObject volumeInfo = firstFeature.getJSONObject("volumeInfo");
+                    JSONObject arrayJsonObject = itemArray.getJSONObject(i);
+                    JSONObject volumeInfo = arrayJsonObject.getJSONObject("volumeInfo");
 
                     // Extract out the title values
                     String title = volumeInfo.getString("title");
@@ -235,8 +245,14 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "Problem parsing the Book JSON results", e);
             }
             return books;
-        }
-    }
+        }}
+        public void onSaveInstanceState(Bundle saveInstanceState){
+            super.onSaveInstanceState(saveInstanceState);
+            Log.i(LOG_TAG, "onSaveInstanceState");
 
+            //save the value of mCurrentIndex  variable
+            saveInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        }
 }
+
 
